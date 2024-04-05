@@ -7,8 +7,8 @@ using namespace vex;
 void Driver_class::Drivertain(){
     double axis3 = Controller.Axis3.position(pct);
     double axis1 = Controller.Axis1.position(pct);
-    double leftVolt = axis3 - axis1;
-    double rightVolt = axis3 + axis1;
+    double leftVolt = axis3 + axis1;
+    double rightVolt = axis3 - axis1;
     double scale = 12.0 / fmax(12.0, fmax(fabs(leftVolt), fabs(rightVolt)));
     leftVolt *= scale;
     rightVolt *= scale;

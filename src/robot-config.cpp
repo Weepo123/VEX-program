@@ -8,13 +8,13 @@ brain Brain;
 motor puncher_right = motor(PORT5, ratio36_1, false);
 motor puncher_left = motor(PORT6, ratio36_1, true);
 
-motor L1 = motor(PORT19, ratio6_1, false);
-motor L2 = motor(PORT18, ratio6_1, true);
-motor L3 = motor(PORT20, ratio6_1, false);
+motor L1 = motor(PORT19, ratio6_1, true);
+motor L2 = motor(PORT18, ratio6_1, false);
+motor L3 = motor(PORT20, ratio6_1, true);
 
-motor R1 = motor(PORT11, ratio6_1, true);
-motor R2 = motor(PORT12, ratio6_1, false);
-motor R3 = motor(PORT13, ratio6_1, true);
+motor R1 = motor(PORT11, ratio6_1, false);
+motor R2 = motor(PORT12, ratio6_1, true);
+motor R3 = motor(PORT13, ratio6_1, false);
 
 motor Intake = motor(PORT16, ratio18_1, true);
 
