@@ -9,11 +9,12 @@ Driver_class Driver;
 void Control(){    
     Driver.elevation.reset();
     resetPuncher();
+    
     Controller.ButtonL1.pressed(Front_wings);
     Controller.ButtonR1.pressed(Back_wings);
 
-    Controller.ButtonR2.pressed(Back_wing_R);
-    Controller.ButtonL2.pressed(Back_wing_L);
+    Controller.ButtonR2.pressed(Front_wing_L);
+    Controller.ButtonL2.pressed(Front_wing_R);
 
     while(1){
         Driver.Intake_spin();

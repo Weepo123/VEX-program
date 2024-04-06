@@ -83,14 +83,16 @@ void Auto_class::move_Tile(float disTile, int speed_max, double target, float kp
     }
 
     // Inertial Target Calibration
-    turn_error = target - Inertial.heading();
-    INT = INT + turn_error;
+    if(target != 0){
+        turn_error = target - Inertial.heading();
+        INT = INT + turn_error;
 
-    if(position_now / fabs(target) > ratio_to_turn){
-      speed_turn = (turn_error) * kp  + INT * ki + (turn_error - prev_error) * kd;
-    }
-    else{
-      speed_turn = 0;
+        if(position_now / fabs(target) > ratio_to_turn){
+          speed_turn = (turn_error) * kp  + INT * ki + (turn_error - prev_error) * kd;
+        }
+        else{
+          speed_turn = 0;
+        }
     }
 
     motor_spin(direction * speed_now + speed_turn, direction * speed_now - speed_turn, rpm);
@@ -98,18 +100,18 @@ void Auto_class::move_Tile(float disTile, int speed_max, double target, float kp
 
     position_now = fabs(((L1.position(deg) + L2.position(deg) + L3.position(deg)) + (R1.position(deg) + R2.position(deg) + R3.position(deg))) / 6);
     if(turn_error > 0.25){
-      motor_stop(hold);
+      motor_stop(brake);
     }
     prev_error = turn_error;
   }
-  motor_stop(hold);
+  motor_stop(brake);
 }
 
-void Auto_class::inertial_turn(float turn_degree){
+void Auto_class::turn(float turn_degree){
   float speed_now = 0;
 
   float kp = 3;
-  float ki = 0.00000005;
+  float ki = 0.0000005;
   float kd = 0;
 
   float error = 0;
@@ -120,7 +122,7 @@ void Auto_class::inertial_turn(float turn_degree){
 
   timer timeout;
   
-  while (counter < 1 && timeout.value() <= 3){
+  while (counter < 5 && timeout.value() <= 3){
 
     error = turn_degree - Inertial.heading();
     INT = INT + error;
@@ -138,5 +140,5 @@ void Auto_class::inertial_turn(float turn_degree){
     }
     wait(10, msec);
   }
-  motor_stop(hold);
+  motor_stop(brake);
 }

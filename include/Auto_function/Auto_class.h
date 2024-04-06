@@ -28,7 +28,7 @@ class Auto_class{
 
         /*Turn with inertial sensor to ensure the robot get the correct angle.
         Enter (degrees to turn)*/
-        void inertial_turn(float turn_degree);
+        void turn(float turn_degree);
 
         /*Decide use whether Front_wings or Back_wings then type in the true or false to control the wing.
         Etner (Front, Back), (ture, false)*/

@@ -3,8 +3,7 @@ using namespace vex;
 
 extern brain Brain;
 
-extern motor puncher_right;
-extern motor puncher_left;
+extern motor puncher;
 
 extern motor L1;
 extern motor L2;
@@ -16,9 +15,9 @@ extern motor R3;
 
 extern motor Intake;
 
-extern pneumatics Front_wings1;
-extern pneumatics Back_wings_L;
-extern pneumatics Back_wings_R;
+extern pneumatics Back_wings1;
+extern pneumatics Front_wings_L;
+extern pneumatics Front_wings_R;
 
 extern inertial Inertial;
 extern distance Distance;

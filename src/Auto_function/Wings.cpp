@@ -9,11 +9,11 @@ using namespace vex;
 
 void Auto_class::Wings(std::string direction, bool is_open){
 
-    if(direction == "Front"){
-        Front_wings1.set(is_open);
+    if(direction == "Back"){
+        Back_wings1.set(is_open);
     }
-    else if(direction == "Back"){
-        Back_wings_L.set(is_open);
-        Back_wings_R.set(is_open);
+    else if(direction == "Front"){
+        Front_wings_L.set(is_open);
+        Front_wings_R.set(is_open);
     }
 }

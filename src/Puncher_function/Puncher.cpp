@@ -46,30 +46,30 @@ namespace {
         isPuncherResetted = false;
 
         // Spin to slip part
-        puncher_motor.resetPosition();
+        puncher.resetPosition();
 
         timer timeout;
         timeout.reset();
 
         // Nonslip to slip
-        puncher_motor.spin(fwd, 90, pct);
+        puncher.spin(fwd, 90, pct);
         timeout.reset();
         task::sleep(100);
-        while (puncher_motor.torque() > 0.10 && timeout.value() <= 2){
+        while (puncher.torque() > 0.10 && timeout.value() <= 2){
             task::sleep(10);
         }
 
         // Spin to the start of nonslip
-        puncher_motor.setMaxTorque(0.10, Nm);
+        puncher.setMaxTorque(0.10, Nm);
         task::sleep(10);
-        puncher_motor.stop();
+        puncher.stop();
 
         // Spin catapult to bottom
-        puncher_motor.setMaxTorque(100, pct);
-        puncher_motor.resetPosition();
+        puncher.setMaxTorque(100, pct);
+        puncher.resetPosition();
         spinPuncherToAngle(360.0 * (8.0 / 12.0));
-        puncher_motor.stop(hold);
-        puncher_motor.resetPosition();
+        puncher.stop(hold);
+        puncher.resetPosition();
 
         isPuncherResetted = true;
     }
@@ -86,12 +86,12 @@ namespace {
     }
     
     void spinPuncherToAngle(double degrees){
-        puncher_motor.spin(fwd, 12, volt);
+        puncher.spin(fwd, 12, volt);
         timer runTimeout;
-        while (puncher_motor.position(deg) < degrees && runTimeout.value() < 0.5)
+        while (puncher.position(deg) < degrees && runTimeout.value() < 0.5)
         {
             task::sleep(10);
         }
-        puncher_motor.stop(hold);
+        puncher.stop(hold);
     }
 }

@@ -25,4 +25,4 @@ void Auto_class::move_Tile(float disTile, int speed_max, double target = 0, floa
 
 /*Turn with inertial sensor to ensure the robot get the correct angle.
 Enter (degrees to turn)*/
-void Auto_class::inertial_turn(float turn_degree);
+void Auto_class::turn(float turn_degree);
