@@ -111,7 +111,7 @@ void Auto_class::turn(float turn_degree){
   float speed_now = 0;
 
   float kp = 3;
-  float ki = 0.0000005;
+  float ki = 0.00000055;
   float kd = 0;
 
   float error = 0;
@@ -122,7 +122,7 @@ void Auto_class::turn(float turn_degree){
 
   timer timeout;
   
-  while (counter < 5 && timeout.value() <= 3){
+  while (counter < 1 && timeout.value() <= 3){
 
     error = turn_degree - Inertial.heading();
     INT = INT + error;

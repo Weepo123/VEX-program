@@ -76,11 +76,13 @@ void usercontrol(void) {
     // values based on feedback from the joysticks.
 
     // ........................................................................
-    Control();
     // ........................................................................
-
+    while(1){
+      if(((Left_motor.temperature(celsius)+Right_motor.temperature(celsius))/2) < 55){
+        Control();
+      }
     wait(20, msec); // Sleep the task for a short amount of time to
-                    // prevent wasted resources.
+    }                // prevent wasted resources.
   }
 
 

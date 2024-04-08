@@ -19,7 +19,7 @@ class Auto_class{
         void motor_spin(double L_speed,double R_speed, velocityUnits units);
 
         /*Move in second to ensure the robot can push triball in to the goal.
-        Enter (direction = fwd, reverse), (velocity = velocity in voltage), (second_to_move = move how much time), (brakeType = brake, hold, coast)*/
+        Enter (direction = fwd, reverse), (velocity = velocity in rpm), (second_to_move = move how much time), (brakeType = brake, hold, coast)*/
         void move_full_speed(int velocity, double second_to_move, brakeType mode);
 
         /*In centimeter, move curved or straight path. Using inertial sensor to ensure the robot move to correct position.
