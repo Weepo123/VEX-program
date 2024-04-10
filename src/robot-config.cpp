@@ -17,9 +17,9 @@ motor R3 = motor(PORT13, ratio6_1, false);
 
 motor Intake = motor(PORT16, ratio18_1, true);
 
-digital_out Back_wings1 = digital_out(Brain.ThreeWirePort.H );
-digital_out Front_wings_L = digital_out(Brain.ThreeWirePort.D);
-digital_out Front_wings_R = digital_out(Brain.ThreeWirePort.F);
+digital_out Back_wings1 = digital_out(Brain.ThreeWirePort.D );
+digital_out Front_wings_L = digital_out(Brain.ThreeWirePort.H);
+digital_out Front_wings_R = digital_out(Brain.ThreeWirePort.A);
 
 inertial Inertial = inertial(PORT15);
 distance Distance = distance(PORT21);

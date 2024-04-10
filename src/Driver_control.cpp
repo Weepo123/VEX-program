@@ -11,10 +11,7 @@ void Control(){
     resetPuncher();
     
     Controller.ButtonL1.pressed(Front_wings);
-    Controller.ButtonR1.pressed(Back_wings);
-
-    Controller.ButtonR2.pressed(Front_wing_L);
-    Controller.ButtonL2.pressed(Front_wing_R);
+    Controller.ButtonL2.pressed(Back_wings);
 
     while(1){
         Driver.Intake_spin();
