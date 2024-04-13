@@ -88,8 +88,7 @@ namespace {
     void spinPuncherToAngle(double degrees){
         puncher.spin(fwd, 12, volt);
         timer runTimeout;
-        while (puncher.position(deg) < degrees && runTimeout.value() < 0.5)
-        {
+        while (puncher.position(deg) < degrees && runTimeout.value() < 0.5){
             task::sleep(10);
         }
         puncher.stop(hold);

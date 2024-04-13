@@ -5,7 +5,7 @@
 using namespace vex;
 
 /*Convert angle over 180 to a negative */
-double Auto_class::heading_convert(double heading);
+double Auto_class::rotation_convert(double rotation);
 
 /*Stop the robot with the brake type mode.
 Enter (brakeType = brake, bold, coast)*/

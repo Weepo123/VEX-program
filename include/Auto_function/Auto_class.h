@@ -36,5 +36,5 @@ class Auto_class{
         
     private:
         /*Convert angle over 180 to a negative */
-        double heading_convert(double heading);
+        double rotation_convert(double rotation);
 };

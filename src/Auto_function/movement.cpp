@@ -4,8 +4,8 @@
 
 using namespace vex;
 
-double Auto_class::heading_convert(double heading){
-  return(heading > 180) ? heading - 360 : heading;
+double Auto_class::rotation_convert(double rotation){
+  return(rotation > 180) ? rotation - 360 : rotation;
   /*twenRY Operator A = (condition) ? (true data) : (false data)*/
 }
 
@@ -34,13 +34,13 @@ void Auto_class::move_Tile(float disTile, int speed_max, double target, float kp
   float t1, t2, t3; // second
   float Vmax; // degrees / second
   float Vmax_rpm;
-  float acceleration_per_degrees = 1800; // degrees / second^2
+  float acceleration_per_degrees = 3000; // degrees / second^2
 
   //resest Position
   Left_motor.resetPosition();
   Right_motor.resetPosition();
 
-  /*    Target_deg = Distance / ((wheel's perimeter) * (gear ratio) * (complete angle)*/
+  /*    Target_deg = Distance * (Tile length) * (wheel's perimeter) * (wheel gear) * (motor gear)* (complete angle)*/
   float target_deg = disTile * (24.0 / 1.0) * (1.0 / (pi * 3.5)) * (84.0 / 1.0) * (1.0 / 48.0) * (360.0 / 1.0);
 
   Vmax = fmin(sqrt(target_deg * acceleration_per_degrees),  speed_max * 6 ); // calculaate real Vmax
@@ -84,22 +84,22 @@ void Auto_class::move_Tile(float disTile, int speed_max, double target, float kp
 
     // Inertial Target Calibration
     if(target != 0){
-        turn_error = target - Inertial.heading();
-        INT = INT + turn_error;
+      turn_error = target - Inertial.rotation(degrees);
+      INT = INT + turn_error;
 
-        if(position_now / fabs(target) > ratio_to_turn){
-          speed_turn = (turn_error) * kp  + INT * ki + (turn_error - prev_error) * kd;
-        }
-        else{
-          speed_turn = 0;
-        }
+      if(position_now / fabs(target) > ratio_to_turn){
+        speed_turn = (turn_error) * kp  + INT * ki + (turn_error - prev_error) * kd;
+      }
+      else{
+        speed_turn = 0;
+      }
     }
 
     motor_spin(direction * speed_now + speed_turn, direction * speed_now - speed_turn, rpm);
     wait(10, msec);
 
     position_now = fabs(((L1.position(deg) + L2.position(deg) + L3.position(deg)) + (R1.position(deg) + R2.position(deg) + R3.position(deg))) / 6);
-    if(turn_error > 0.25){
+    if(turn_error > 0.5){
       motor_stop(brake);
     }
     prev_error = turn_error;
@@ -122,23 +122,23 @@ void Auto_class::turn(float turn_degree){
 
   timer timeout;
   
-  while (counter < 1 && timeout.value() <= 3){
+  while (counter < 3 && timeout.value() <= 3){
 
-    error = turn_degree - Inertial.heading();
+    error = turn_degree - Inertial.rotation(degrees);
     INT = INT + error;
     speed_now = error * kp + INT * ki + (error - prev_error) * kd;
-
+    printf("error: %.3f\n", error);
     motor_spin(speed_now, -speed_now, rpm);
 
     prev_error = error;
 
-    if (fabs(Inertial.heading() - turn_degree) < 0.5){
+    if (fabs(Inertial.rotation(degrees) - turn_degree) < 0.5){
       counter++;
     }
     else{
       counter = 0;
     }
-    wait(10, msec);
+    wait(5, msec);
   }
   motor_stop(brake);
 }

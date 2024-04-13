@@ -14,13 +14,14 @@ void Driver_class::Drivertain_Temperature(){
         Brain.Screen.printAt(220, 100, "R2: %.3f", R2.temperature(celsius));
         Brain.Screen.printAt(220, 120, "R3: %.3f", R3.temperature(celsius));
 
-        /*Clear terminal by using system("cls")*/
-        system("cls");
-        printf("L1: %.3f\n", L1.temperature(celsius));
-        printf("L2: %.3f\n", L2.temperature(celsius));
-        printf("L3: %.3f\n", L3.temperature(celsius));
-        printf("R1: %.3f\n", R1.temperature(celsius));
-        printf("R2: %.3f\n", R2.temperature(celsius));
-        printf("R3: %.3f\n", R3.temperature(celsius));
-        system("cls");
+        /*Clear terminal by using system("CLS")*/
+        // system("cls");
+        // printf("L1: %.3f\n", L1.temperature(celsius));
+        // printf("L2: %.3f\n", L2.temperature(celsius));
+        // printf("L3: %.3f\n", L3.temperature(celsius));
+        // printf("R1: %.3f\n", R1.temperature(celsius));
+        // printf("R2: %.3f\n", R2.temperature(celsius));
+        // printf("R3: %.3f\n", R3.temperature(celsius));
+        // // printf("Battery: %.3f\n", Brain.Battery());
+        // system("cls");
 }
