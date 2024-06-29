@@ -1,7 +1,7 @@
+#pragma once
 #include "vex.h"
 #include "robot-config.h"
 #include "Auto_function/Auto_class.h"
-
 #include <string>
 #include <iostream>
 

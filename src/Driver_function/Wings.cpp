@@ -7,6 +7,7 @@ bool Front_L = 1;
 bool Front_R = 1;
 bool Front = 1;
 bool Back = 1;
+bool hangg = 1;
 
 void Front_wing_L(){
     if(Front_L){
@@ -51,5 +52,16 @@ void Back_wings(){
     else if(!Front){
         Back_wings1.set(false);
         Back = 1;
+    }
+}
+
+void Hang(){
+    if(hangg){
+        hang.set(true);
+        hangg = 0;
+    }
+    else if(!hangg){
+        hang.set(false);
+        hangg = 1;
     }
 }

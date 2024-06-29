@@ -12,7 +12,6 @@
 #include "Autonomous.h"
 #include "Driver_Control.h"
 #include "Driver_function/Driver_class.h"
-#include "Puncher_function/Puncher.h"
 using namespace vex;
 
 // A global instance of competition
@@ -34,10 +33,6 @@ void pre_auton(void) {
   while (Inertial.isCalibrating()) {
   task::sleep(10);
   }
-  task puncherTask([] () -> int {
-    puncherThread();
-    return 0;
-  });
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
 }
@@ -78,8 +73,8 @@ void usercontrol(void) {
     // ........................................................................
     // ........................................................................
     while(1){
-      Control()
-;    wait(20, msec); // Sleep the task for a short amount of time to
+      Control();
+      wait(20, msec); // Sleep the task for a short amount of time to
     }                // prevent wasted resources.
   }
 

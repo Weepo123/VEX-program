@@ -4,8 +4,8 @@
 
 using namespace vex;
 
-void Driver_class::elevation_time(){
-    if(this->elevation.value() == 75){
-        Controller.rumble("- - -");
+void Driver_class::elevation_time() {
+    if (this->elevation.value() == 75) {
+        Controller.rumble("- - -");  // Trigger controller rumble with pattern "- - -"
     }
 }

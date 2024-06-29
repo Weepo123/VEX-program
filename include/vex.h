@@ -6,8 +6,6 @@
 #include "v5.h"
 #include "v5_vcs.h"
 
-#define pi 3.141592657589793238962643383279
-
 #define waitUntil(condition)                                                   \
   do {                                                                         \
     wait(5, msec);                                                             \
