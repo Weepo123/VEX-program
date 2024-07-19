@@ -10,8 +10,7 @@
 #include "vex.h"
 #include "robot-config.h"
 #include "Autonomous.h"
-#include "Driver_Control.h"
-#include "Driver_function/Driver_class.h"
+#include "DriverControl.h"
 using namespace vex;
 
 // A global instance of competition
