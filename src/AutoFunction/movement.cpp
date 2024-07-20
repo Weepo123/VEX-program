@@ -109,19 +109,14 @@ void Auto_class::MoveTile(float DistanceTiles, float MaxSpeed, float TargetAngle
             CurrentSpeed = CurrentSpeed;  // Maintain current speed
         }
 
-        // Calculate distance error
-        double DistanceError = TargetDegrees - CurrentPosition;
-        DistancePID.PIDCalculate(DistanceError);  // Calculate PID value for distance
-        double MoveSpeed = DistancePID.Value();
-
         // Calculate turning error
         double TurnError = TargetAngle - Inertial.rotation(degrees);
         TurnPID.PIDCalculate(TurnError);  // Calculate PID value for turning
         double TurnSpeed = TurnPID.Value();
 
         // Adjust motor speeds for both forward movement and turning correction
-        double LeftSpeed = MovementDirection * MoveSpeed + TurnSpeed;
-        double RightSpeed = MovementDirection * MoveSpeed - TurnSpeed;
+        double LeftSpeed = MovementDirection * CurrentSpeed + TurnSpeed;
+        double RightSpeed = MovementDirection * CurrentSpeed - TurnSpeed;
 
         MotorSpin(LeftSpeed, RightSpeed);
 
@@ -205,7 +200,7 @@ void Auto_class::MoveTurnTile(float DistanceTile, float Rotation, float MoveVelo
     while (!(DistancePID.isSettled() && RotationPID.isSettled()) && timeout.value() < Timeout) {
         double DistanceError = 0.0;  // Variable to store the distance error
         double RotationError = 0.0;  // Variable to store the rotation error
-        printf("D: %.3d\n", DistanceError);
+        printf("D: %.3f\n", DistanceError);
 
         // Calculate the target distance in centimeters (1 tile = 60.96 cm)
         double TargetDistance = (DistanceTile * TileLength);
@@ -267,12 +262,12 @@ void Auto_class::MoveTurnTile(float DistanceTile, float Rotation, float MoveVelo
         }
 
         // Calculate the current velocity difference between the left and right motors in RPM
-        double VelocityDifferenceRPM = fabs(LeftMotor.velocity(rpm) - RightMotor.velocity(rpm));
+        double VelocityDifferenceRPM = LeftMotor.velocity(rpm) - RightMotor.velocity(rpm);
         // Convert the velocity difference from RPM to centimeters per second
         double VelocityDifferenceCmRPS = (VelocityDifferenceRPM) * (600.0 / 60) * (1 / GearRatio) * (WheelCircum / 1.0);
 
         // Calculate the expected velocity difference between the left and right motors based on target velocities
-        double CalculateVelocityDifferenceRPM = fabs(LeftVelocityRPM - RightVelocityRPM);
+        double CalculateVelocityDifferenceRPM = LeftVelocityRPM - RightVelocityRPM;
         // Convert the expected velocity difference from RPM to centimeters per second
         double CalculateVelocityDifferenceCmRPS = (CalculateVelocityDifferenceRPM) * (600.0 / 60) * (1 / GearRatio) * (WheelCircum / 1.0);
 
