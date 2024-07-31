@@ -13,12 +13,16 @@ extern motor R3;
 
 extern encoder Encoder;
 
-extern motor Intake;
+extern motor Intake1;
+extern motor Intake2;
 
 extern inertial Inertial;
 extern distance Distance;
 
+extern pneumatics Clamp;
+extern pneumatics PullUpIntake;
 extern controller Controller;
 
+extern motor_group Intake;
 extern motor_group RightMotor;
 extern motor_group LeftMotor;

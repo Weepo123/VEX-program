@@ -1,3 +1,5 @@
+#include "vex.h"
+#include "robot-config.h"
 #include "AutoFunction/PID.h"
 
 PID::PID(double kP, double kI, double kD, double ErrorRang, double ErrorCount) {

@@ -200,7 +200,6 @@ void Auto_class::MoveTurnTile(float DistanceTile, float Rotation, float MoveVelo
     while (!(DistancePID.isSettled() && RotationPID.isSettled()) && timeout.value() < Timeout) {
         double DistanceError = 0.0;  // Variable to store the distance error
         double RotationError = 0.0;  // Variable to store the rotation error
-        printf("D: %.3f\n", DistanceError);
 
         // Calculate the target distance in centimeters (1 tile = 60.96 cm)
         double TargetDistance = (DistanceTile * TileLength);

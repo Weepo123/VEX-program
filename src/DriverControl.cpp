@@ -1,12 +1,14 @@
 #include "vex.h"
 #include "robot-config.h"
 #include "DriverFunction/DriverFunction.h"
+#include "DriverFunction/Pneumatics.h"
 using namespace vex;
 
 Driver_class Driver;
 
 void Control() {
     Driver.Elevation.reset(); // Reset elevation timer
+    Controller.ButtonL1.pressed(GoalClamp);
     // Main control loop
     while (true) {
         Driver.IntakeSpin();           // Control the intake mechanism based on controller input
