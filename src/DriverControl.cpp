@@ -9,6 +9,7 @@ Driver_class Driver;
 void Control() {
     Driver.Elevation.reset(); // Reset elevation timer
     Controller.ButtonL1.pressed(GoalClamp);
+    Controller.ButtonUp.pressed(PullUpIntake);
     // Main control loop
     while (true) {
         Driver.IntakeSpin();           // Control the intake mechanism based on controller input

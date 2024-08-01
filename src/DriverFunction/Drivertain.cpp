@@ -11,7 +11,7 @@ void Driver_class::DrivertainSpin() {
     
     // Calculate left and right voltages based on joystick inputs
     double LeftVolt = Axis1 + Axis3;
-    double RightVolt = Axis1 - Axis3;
+    double RightVolt = Axis3 - Axis1;
     
     // Scale voltages to ensure they are within the valid range for motor control
     double Scale = 12.0 / fmax(12.0, fmax(fabs(LeftVolt), fabs(RightVolt)));

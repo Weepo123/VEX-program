@@ -20,7 +20,7 @@ extern inertial Inertial;
 extern distance Distance;
 
 extern pneumatics Clamp;
-extern pneumatics PullUpIntake;
+extern pneumatics PullIntake;
 extern controller Controller;
 
 extern motor_group Intake;

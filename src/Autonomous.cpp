@@ -9,5 +9,5 @@ using namespace vex;
 
 void Autonomous(){
     Auto_class Auto;
-    Auto.MoveTurnTile(1);
+    Auto.MoveTurnTileWithPID(1);
 }

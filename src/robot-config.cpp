@@ -22,7 +22,7 @@ inertial Inertial = inertial(PORT15);
 distance Distance = distance(PORT2);
 
 pneumatics Clamp = pneumatics(Brain.ThreeWirePort.A);
-pneumatics PullUpIntake = pneumatics(Brain.ThreeWirePort.B);
+pneumatics PullIntake = pneumatics(Brain.ThreeWirePort.B);
 
 controller Controller = controller(primary);
 

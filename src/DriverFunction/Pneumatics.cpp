@@ -15,13 +15,13 @@ void GoalClamp(){
     }
 }
 
-void PullIntake(){
+void PullUpIntake(){
     if(pullIntake){
-        PullUpIntake.open();
+        PullIntake.open();
         pullIntake = false;
     }
     else if(!pullIntake){
-        PullUpIntake.close();
+        PullIntake.close();
         pullIntake = true;
     }
 }

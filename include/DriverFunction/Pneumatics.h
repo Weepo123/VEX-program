@@ -4,4 +4,4 @@
 
 void GoalClamp();
 
-void PullIntake();
+void PullUpIntake();

@@ -15,19 +15,11 @@ void Auto_class::MotorStop(brakeType mode) {
 }
 
 
-void Auto_class::MotorSpin(double LeftVelocity, double RightVelocity) {
-    // Scale the velocities to ensure they are within the valid range (0 to 12 volts)
-    double scale = 12.0 / fmax(12.0, fmax(fabs(LeftVelocity), fabs(RightVelocity)));
-    
-    // Apply the scaling factor to the velocities
-    LeftVelocity *= scale;
-    RightVelocity *= scale;
-    
-    // Spin the left motor with the scaled velocity
-    LeftMotor.spin(fwd, LeftVelocity, volt);
-    
-    // Spin the right motor with the scaled velocity
-    RightMotor.spin(fwd, RightVelocity, volt);
+void Auto_class::MotorSpin(double LeftVelocity, double RightVelocity, velocityUnits units) {
+    // Spin the left motor at the specified velocity
+    LeftMotor.spin(fwd, LeftVelocity, units);
+    // Spin the right motor at the specified velocity
+    RightMotor.spin(fwd, RightVelocity, units);
 }
 
 double Auto_class::AverageDifference(std::vector<double> vector1, std::vector<double> vector2) {
@@ -53,8 +45,51 @@ double Auto_class::AverageDifference(std::vector<double> vector1, std::vector<do
     return AverageDifference;
 }
 
+void Auto_class::Turn(float Rotation, float Velocity, float RotationCenterCm, float ErrorRange, float Timeout) {
+    // Calculate the radii for the left and right wheels based on the rotation center
+    double LeftRadiusCm = (RobotLength / 2) + RotationCenterCm;
+    double RightRadiusCm = (RobotLength / 2) - RotationCenterCm;
 
-void Auto_class::MoveTile(float DistanceTiles, float MaxSpeed, float TargetAngle, float ProportionalGain, float TurnRatio) {
+    // The average radius used for calculating velocity proportions
+    double averageRotateRadiusCm = (LeftRadiusCm + RightRadiusCm) / 2;
+
+    // Calculate velocity proportions for the left and right wheels
+    double LeftProportion = LeftRadiusCm / averageRotateRadiusCm;
+    double RightProportion = -RightRadiusCm / averageRotateRadiusCm;
+
+    // Initialize PID controller for controlling the rotation
+    PID RotationPID(0.1, 0, 0.35, ErrorRange);
+
+    // Start a timer to enforce the timeout limit
+    timer timeout;
+
+    // Loop until the rotation is within the acceptable error range or the timeout is reached
+    while (!RotationPID.isSettled() && timeout.value() < Timeout) {
+        // Calculate the current rotation error
+        double Error = Rotation - Inertial.rotation();
+
+        // Update the PID controller with the current error
+        RotationPID.PIDCalculate(Error);
+
+        // Calculate the average velocity based on the PID output, constrained by the maximum velocity
+        double AverageVelocityRPM = fmin(Velocity, fmax(-Velocity, RotationPID.Value()));
+
+        // Calculate the velocities for the left and right motors based on the proportional values
+        double LeftVelocityRPM = LeftProportion * AverageVelocityRPM;
+        double RightVelocityRPM = RightProportion * AverageVelocityRPM;
+
+        // Spin the motors with the calculated velocities
+        MotorSpin(LeftVelocityRPM, RightVelocityRPM, rpm);
+
+        // Wait for 10 milliseconds before the next iteration to avoid overwhelming the control loop
+        wait(10, msec);
+    }
+
+    // Stop the motors once the loop is exited, either because the target rotation was reached or the timeout was exceeded
+    MotorStop(brake);
+}
+
+void Auto_class::MoveTurnTileWithProfileCalculation(float DistanceTiles, float MaxSpeed, float TargetAngle, float ProportionalGain, float TurnRatio, float Timeout) {
     // Initialize variables for speed control and position tracking
     float CurrentSpeed = 0;
     double CurrentPosition = 0;
@@ -90,7 +125,6 @@ void Auto_class::MoveTile(float DistanceTiles, float MaxSpeed, float TargetAngle
     }
 
     // PID controllers for distance and turning
-    PID DistancePID(5.0, 0.0, 0.0, 0.5);  // Distance PID controller
     PID TurnPID(ProportionalGain, 0.0000005, 0.0, 0.5);  // Turn PID controller with specified proportional gain
 
     // Timers for movement timeout and elapsed time
@@ -98,7 +132,7 @@ void Auto_class::MoveTile(float DistanceTiles, float MaxSpeed, float TargetAngle
     timer timer;
 
     // Main control loop for movement
-    while (CurrentPosition < fabs(TargetDegrees) && moveTimeout.value() <= 5) {
+    while (CurrentPosition < fabs(TargetDegrees) && moveTimeout.value() <= Timeout) {
         // Calculate speed profile based on current time within AccelerationTime and DecelerationTime
         if (timer.value() < AccelerationTime) {
             CurrentSpeed = cos(timer.value() / AccelerationTime * M_PI + M_PI) * MaxVelocityRPM / 2 + MaxVelocityRPM / 2;  // Accelerating phase
@@ -118,7 +152,7 @@ void Auto_class::MoveTile(float DistanceTiles, float MaxSpeed, float TargetAngle
         double LeftSpeed = MovementDirection * CurrentSpeed + TurnSpeed;
         double RightSpeed = MovementDirection * CurrentSpeed - TurnSpeed;
 
-        MotorSpin(LeftSpeed, RightSpeed);
+        MotorSpin(LeftSpeed, RightSpeed, rpm);
 
         // Wait for a short interval before the next iteration
         wait(10, msec);
@@ -136,56 +170,11 @@ void Auto_class::MoveTile(float DistanceTiles, float MaxSpeed, float TargetAngle
     MotorStop(brake);
 }
 
-void Auto_class::Turn(float Rotation, float Velocity, float RotationCenterCm, float ErrorRange, float Timeout) {
-    // Calculate the radii for the left and right wheels based on the rotation center
-    double LeftRadiusCm = (RobotLength / 2) + RotationCenterCm;
-    double RightRadiusCm = (RobotLength / 2) - RotationCenterCm;
-
-    // The average radius used for calculating velocity proportions
-    double averageRotateRadiusCm = (LeftRadiusCm + RightRadiusCm) / 2;
-
-    // Calculate velocity proportions for the left and right wheels
-    double LeftProportion = LeftRadiusCm / averageRotateRadiusCm;
-    double RightProportion = -RightRadiusCm / averageRotateRadiusCm;
-
-    // Initialize PID controller for controlling the rotation
-    PID RotationPID(0.62, 0, 0, ErrorRange);
-
-    // Start a timer to enforce the timeout limit
-    timer timeout;
-
-    // Loop until the rotation is within the acceptable error range or the timeout is reached
-    while (!RotationPID.isSettled() && timeout.value() < Timeout) {
-        // Calculate the current rotation error
-        double Error = Rotation - Inertial.rotation();
-
-        // Update the PID controller with the current error
-        RotationPID.PIDCalculate(Error);
-
-        // Calculate the average velocity based on the PID output, constrained by the maximum velocity
-        double AverageVelocityRPM = fmin(Velocity, fmax(-Velocity, RotationPID.Value()));
-
-        // Calculate the velocities for the left and right motors based on the proportional values
-        double LeftVelocityRPM = LeftProportion * AverageVelocityRPM;
-        double RightVelocityRPM = RightProportion * AverageVelocityRPM;
-
-        // Spin the motors with the calculated velocities
-        MotorSpin(LeftVelocityRPM, RightVelocityRPM);
-
-        // Wait for 10 milliseconds before the next iteration to avoid overwhelming the control loop
-        wait(10, msec);
-    }
-
-    // Stop the motors once the loop is exited, either because the target rotation was reached or the timeout was exceeded
-    MotorStop(brake);
-}
-
-
-void Auto_class::MoveTurnTile(float DistanceTile, float Rotation, float MoveVelocity, float RotateVelocity, float RatioToTurn, float ErrorRange, float Timeout) {
+void Auto_class::MoveTurnTileWithPID(float DistanceTile, float Rotation, float MoveVelocity, float RotateVelocity, float RatioToTurn, float ErrorRange, float Timeout){
     // Initialize PID controllers for distance, rotation, and synchronization with respective error ranges
-    PID DistancePID(5.0, 0.0, 0.0, ErrorRange);  // PID for controlling distance
-    PID RotationPID(0.0, 0.0, 0.0, 0.0);        // PID for controlling rotation
-    PID SynchronizeVelocityPID(0.5, 0.0, 0.0, 5.0);  // PID for synchronizing motor velocities
+    PID DistancePID(0.9, 0.0, 0.7, ErrorRange);  // PID for controlling distance
+    PID RotationPID(0.5, 0.0, 0.0, DefaultRotateErrorRange);        // PID for controlling rotation
+    PID SynchronizeVelocityPID(0.5, 0.0, 0.0, 10.0);  // PID for synchronizing motor velocities
 
     // Record the initial encoder value to measure distance traveled
     double EncoderRevolution = Encoder.rotation(rev);
@@ -226,8 +215,17 @@ void Auto_class::MoveTurnTile(float DistanceTile, float Rotation, float MoveVelo
             RotationPID.PIDCalculate(RotationError);
             double RotationVelocityRPM = fmin(RotateVelocity, fmax(-RotateVelocity, RotationPID.Value()));
 
-            LeftVelocityRPM = MoveVelocityRPM + RotationVelocityRPM;
-            RightVelocityRPM = MoveVelocityRPM - RotationVelocityRPM;
+            // Determine the left and right motor velocities based on the ratio to turn
+            if (CurrentDistance / fabs(TargetDistance) > RatioToTurn) {
+                // If the drivetrain revolution per rotation is greater than the ratio to turn, 
+                // adjust the left and right velocities to include rotation velocity
+                LeftVelocityRPM = MoveVelocityRPM + RotationVelocityRPM;
+                RightVelocityRPM = MoveVelocityRPM - RotationVelocityRPM;
+            } else {
+                // Set both left and right velocities to the move velocity only
+                LeftVelocityRPM = MoveVelocityRPM;
+                RightVelocityRPM = MoveVelocityRPM;
+            }
         } else {
             // Get the current positions of each motor
             std::vector<double> RunRevolution = {L1.position(rev), L2.position(rev), L3.position(rev), R1.position(rev), R2.position(rev), R3.position(rev)};
@@ -282,12 +280,12 @@ void Auto_class::MoveTurnTile(float DistanceTile, float Rotation, float MoveVelo
         RightVelocityRPM -= VelocityStraighten;
 
         // Spin the motors with the adjusted velocities
-        MotorSpin(LeftVelocityRPM, RightVelocityRPM);
+        MotorSpin(LeftVelocityRPM, RightVelocityRPM, rpm);
 
         // Wait for 10 milliseconds before the next iteration of the loop
         wait(10, msec);
     }
     
     // Stop the motors once the loop is exited, either because the target was reached or the timeout was exceeded
-    MotorStop(brake);
+    MotorStop(coast);
 }

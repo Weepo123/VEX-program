@@ -20,17 +20,16 @@ class Auto_class{
          * @param mode The braking mode to use (coast, brake, or hold).
          */
         void MotorStop(brakeType mode);
-
         /**
-         * @brief Spins the motors with specified velocities.
+         * @brief Spins the left and right motors at specified velocities.
          * 
-         * This function sets the velocities for the left and right motors. It scales the velocities 
-         * to ensure they are within the valid range for voltage control.
+         * This function sets the velocities of the left and right motors to the specified values.
          * 
-         * @param LeftVelocity The velocity for the left motor (any Velocity Units).
-         * @param RightVelocity The velocity for the right motor (any Velocity Units).
+         * @param LeftVelocity The velocity for the left motor.
+         * @param RightVelocity The velocity for the right motor.
+         * @param units The units for the velocities (e.g., velocityUnits::rpm).
          */
-        void MotorSpin(double LeftVelocity, double RightVelocity);
+        void MotorSpin(double LeftVelocity, double RightVelocity, velocityUnits units);
         /**
          * @brief Calculate the average difference between corresponding elements of two vectors.
          * 
@@ -55,8 +54,9 @@ class Auto_class{
          * @param TargetAngle The target angle to turn (in degrees).
          * @param ProportionalGain The proportional gain for the turning PID controller.
          * @param TurnRatio The ratio of distance traveled to target distance where turning correction starts.
+         * @param Timeout The maximum time allowed for the operation (in milliseconds).
          */
-        void MoveTile(float DistanceTiles, float MaxSpeed = 600.0, float TargetAngle = Inertial.rotation(), float ProportionalGain = 0.0, float TurnRatio = 0.0);
+        void MoveTurnTileWithProfileCalculation(float DistanceTiles, float MaxSpeed = 600.0, float TargetAngle = Inertial.rotation(), float ProportionalGain = 0.0, float TurnRatio = 0.0, float Timeout = 5);
         /**
          * @brief Turns the robot by a specified rotation angle.
          * 
@@ -87,17 +87,11 @@ class Auto_class{
          * @param ErrorRang The acceptable error range for distance PID control.
          * @param Timeout The maximum time allowed for the operation (in milliseconds).
          * */
-        void MoveTurnTile(float DistanceTile, float Rotation = Inertial.rotation(), float MoveVelocity = 600.0, float RotateVelocity = 600.0, float RatioToTurn = 0, float ErrorRang = 1, float Timeout = 5);
-
-        /**
-         * @brief Controls wings or similar mechanisms based on direction and open/close command.
-         * 
-         * @param direction The direction of the wings to control ("Back" or "Front").
-         * @param is_open Boolean flag indicating whether to open (true) or close (false) the wings.
-         */
-        void Wings(std::string direction, bool is_open);
+        void MoveTurnTileWithPID(float DistanceTile, float Rotation = Inertial.rotation(), float MoveVelocity = 600.0, float RotateVelocity = 600.0, float RatioToTurn = 0.0, float ErrorRang = 1, float Timeout = 5);
         
     private:
+        //Default Rotate error range for turning
+        double DefaultRotateErrorRange = 0.5;
         //Length of one tile in centimeters
         double TileLength = (60.96 / 1.0);
         //Perimeter of the wheels in centimeters
