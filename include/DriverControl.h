@@ -9,4 +9,4 @@ using namespace vex;
  * 
  * This function resets elevation, assigns actions to controller buttons, and runs continuous operations.
  */
-void Control();
+void control();

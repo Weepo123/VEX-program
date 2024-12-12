@@ -4,6 +4,11 @@
 
 using namespace vex;
 
+void intakeTaskFunction();
+
+void intakeSecondRing();
+
+void intakeSpin();
 /**
  * @brief Autonomous function to execute predefined movements and actions.
  * 

@@ -4,11 +4,11 @@
 
 using namespace vex;
 
-class Driver_class{
+class driverClass{
     public:
-        timer Elevation;
+        timer elevation;
         
-        Driver_class(){}
+        driverClass(){}
 
         /**
          * @brief Drives the robot based on joystick input for arcade drive control.
@@ -18,7 +18,7 @@ class Driver_class{
          * left and right motors, scales them to ensure they are within the valid range,
          * and controls the motor movements accordingly.
          */
-        void DrivertainSpin();
+        void drivertainSpin();
 
         /**
          * @brief Prints the temperatures of all motors on the Brain screen and terminal.
@@ -26,7 +26,7 @@ class Driver_class{
          * This function retrieves and displays the current temperatures of all motors (L1, L2, L3, R1, R2, R3) 
          * in Celsius units. It prints these values on both the Brain screen and the terminal/console window.
          */
-        void DrivertainTemperature();
+        void drivertainTemperature();
 
         /**
          * @brief Checks the elevation value and triggers controller rumble if it equals 75.
@@ -34,7 +34,7 @@ class Driver_class{
          * This function checks the current elevation value. If the elevation value is 75,
          * it triggers the controller to rumble with a specific pattern ("- - -").
          */
-        void ElevationTime();
+        void elevationTime();
 
         /**
          * @brief Controls the intake motor based on controller inputs.
@@ -43,7 +43,7 @@ class Driver_class{
          * whether to spin the intake motor forward at full voltage, backward at full voltage, 
          * or stop the intake motor (coast mode).
          */
-        void IntakeSpin();
-
+        void intakeSpin();
+        
     private:
 };

@@ -2,6 +2,5 @@
 #include "vex.h"
 #include "robot-config.h"
 
-void GoalClamp();
-
-void PullUpIntake();
+void goalClamp();
+void redirectRing();

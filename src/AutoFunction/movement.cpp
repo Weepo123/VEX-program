@@ -6,7 +6,7 @@
 
 using namespace vex;
 
-void Auto_class::MotorStop(brakeType mode) {
+void autoClass::motorStop(brakeType mode) {
     // Stop the left motor with the specified braking mode
     LeftMotor.stop(mode);
     
@@ -14,278 +14,284 @@ void Auto_class::MotorStop(brakeType mode) {
     RightMotor.stop(mode);
 }
 
-
-void Auto_class::MotorSpin(double LeftVelocity, double RightVelocity, velocityUnits units) {
+void autoClass::motorSpin(double leftVelocity, double rightVelocity, velocityUnits units) {
     // Spin the left motor at the specified velocity
-    LeftMotor.spin(fwd, LeftVelocity, units);
+    LeftMotor.spin(fwd, leftVelocity, units);
     // Spin the right motor at the specified velocity
-    RightMotor.spin(fwd, RightVelocity, units);
+    RightMotor.spin(fwd, rightVelocity, units);
 }
 
-double Auto_class::AverageDifference(std::vector<double> vector1, std::vector<double> vector2) {
+double autoClass::averageDifference(std::vector<double> vector1, std::vector<double> vector2) {
     // Determine the size of the vectors and ensure we use the minimum size to avoid out-of-bounds errors
-    int VectorSize = std::min((int)vector1.size(), (int)vector2.size());
+    int vectorSize = std::min((int)vector1.size(), (int)vector2.size());
 
     // Initialize a variable to accumulate the total difference between corresponding elements of the vectors
-    double TotalDifference = 0;
+    double totalDifference = 0;
 
     // Loop through each element up to the determined vector size
-    for (int i = 0; i < VectorSize; i++) {
+    for (int i = 0; i < vectorSize; i++) {
         // Calculate the difference between the corresponding elements of the two vectors
-        double Difference = vector2[i] - vector1[i];
+        double difference = vector2[i] - vector1[i];
 
         // Accumulate the difference into the total difference variable
-        TotalDifference += Difference;
+        totalDifference += difference;
     }
 
     // Calculate the average difference by dividing the total difference by the number of elements
-    double AverageDifference = TotalDifference / VectorSize;
+    double averageDifference = totalDifference / vectorSize;
 
     // Return the calculated average difference
-    return AverageDifference;
+    return averageDifference;
 }
 
-void Auto_class::Turn(float Rotation, float Velocity, float RotationCenterCm, float ErrorRange, float Timeout) {
+void autoClass::turn(float rotation, float velocity, float rotationCenterCm, float timeout) {
     // Calculate the radii for the left and right wheels based on the rotation center
-    double LeftRadiusCm = (RobotLength / 2) + RotationCenterCm;
-    double RightRadiusCm = (RobotLength / 2) - RotationCenterCm;
+    double leftRadiusCm = (robotLength / 2) + rotationCenterCm;
+    double rightRadiusCm = (robotLength / 2) - rotationCenterCm;
 
     // The average radius used for calculating velocity proportions
-    double averageRotateRadiusCm = (LeftRadiusCm + RightRadiusCm) / 2;
+    double averageRotateRadiusCm = (leftRadiusCm + rightRadiusCm) / 2;
 
     // Calculate velocity proportions for the left and right wheels
-    double LeftProportion = LeftRadiusCm / averageRotateRadiusCm;
-    double RightProportion = -RightRadiusCm / averageRotateRadiusCm;
+    double leftProportion = leftRadiusCm / averageRotateRadiusCm;
+    double rightProportion = -rightRadiusCm / averageRotateRadiusCm;
 
     // Initialize PID controller for controlling the rotation
-    PID RotationPID(0.1, 0, 0.35, ErrorRange);
+    PID rotationPID(3, 0.003, 0.35, defaultRotateErrorRange);
 
     // Start a timer to enforce the timeout limit
-    timer timeout;
+    timer timeoutTimer;
 
     // Loop until the rotation is within the acceptable error range or the timeout is reached
-    while (!RotationPID.isSettled() && timeout.value() < Timeout) {
+    while (!rotationPID.isSettled() && timeoutTimer.value() < timeout) {
         // Calculate the current rotation error
-        double Error = Rotation - Inertial.rotation();
+        double error = rotation - Inertial.rotation();
 
         // Update the PID controller with the current error
-        RotationPID.PIDCalculate(Error);
+        rotationPID.pidCalculate(error);
 
         // Calculate the average velocity based on the PID output, constrained by the maximum velocity
-        double AverageVelocityRPM = fmin(Velocity, fmax(-Velocity, RotationPID.Value()));
+        double averageVelocityRPM = fmin(velocity, fmax(-velocity, rotationPID.value()));
 
         // Calculate the velocities for the left and right motors based on the proportional values
-        double LeftVelocityRPM = LeftProportion * AverageVelocityRPM;
-        double RightVelocityRPM = RightProportion * AverageVelocityRPM;
+        double leftVelocityRPM = leftProportion * averageVelocityRPM;
+        double rightVelocityRPM = rightProportion * averageVelocityRPM;
 
         // Spin the motors with the calculated velocities
-        MotorSpin(LeftVelocityRPM, RightVelocityRPM, rpm);
+        motorSpin(leftVelocityRPM, rightVelocityRPM, rpm);
 
         // Wait for 10 milliseconds before the next iteration to avoid overwhelming the control loop
         wait(10, msec);
     }
 
     // Stop the motors once the loop is exited, either because the target rotation was reached or the timeout was exceeded
-    MotorStop(brake);
+    motorStop(hold);
 }
 
-void Auto_class::MoveTurnTileWithProfileCalculation(float DistanceTiles, float MaxSpeed, float TargetAngle, float ProportionalGain, float TurnRatio, float Timeout) {
+void autoClass::moveTurnTileWithPID(float distanceTile, float rotation, float moveVelocity, float rotateVelocity, float ratioToTurn, float timeout) {
+    moveTurnCmWithPID(distanceTile * tileLength, rotation, moveVelocity, rotateVelocity, ratioToTurn, timeout);
+}
+
+void autoClass::moveTurnTileWithProfileCalculation(float distanceCm, float maxSpeed, float targetAngle, float proportionalGain, float turnRatio, float timeout) {
+    moveTurnCmWithProfileCalculation(distanceCm * tileLength, maxSpeed, targetAngle, proportionalGain, turnRatio, timeout);
+}
+
+void autoClass::moveTurnCmWithProfileCalculation(float distanceCm, float maxSpeed, float targetAngle, float proportionalGain, float turnRatio, float timeout) {
     // Initialize variables for speed control and position tracking
-    float CurrentSpeed = 0;
-    double CurrentPosition = 0;
-    int MovementDirection = 1;  // Direction of movement (1 for forward, -1 for backward)
+    float currentSpeed = 0;
+    double currentPosition = 0;
+    int movementDirection = 1;  // Direction of movement (1 for forward, -1 for backward)
 
     // Constants and variables for motion profiling and PID tuning
-    float AccelerationTime, DecelerationTime, TotalTime;  // Time intervals (seconds)
-    float MaxVelocity;         // Maximum velocity in degrees per second
-    float MaxVelocityRPM;     // Maximum velocity in RPM
-    float AccelerationRate = 2400;  // Acceleration rate in degrees per second^2
+    float accelerationTime, decelerationTime, totalTime;  // Time intervals (seconds)
+    float maxVelocity;         // Maximum velocity in degrees per second
+    float maxVelocityRPM;     // Maximum velocity in RPM
+    float accelerationRate = 2400;  // Acceleration rate in degrees per second^2
 
     // Reset motor positions
     LeftMotor.resetPosition();
     RightMotor.resetPosition();
 
     // Calculate target distance in degrees based on tile length and gearing
-    float TargetDegrees = DistanceTiles * TileLength * WheelsPerimeter * GearRatio * CompleteAngle;
+    float targetDegrees = distanceCm * wheelsPerimeter * gearRatio * completeAngle;
 
     // Calculate maximum achievable velocity based on acceleration limits and user-defined maximum speed
-    MaxVelocity = fmin(sqrt(TargetDegrees * AccelerationRate), MaxSpeed * 6);  // Calculate real maxVelocity
+    maxVelocity = fmin(sqrt(targetDegrees * accelerationRate), maxSpeed * 6);  // Calculate real maxVelocity
 
     // Calculate time intervals for motion profiling
-    AccelerationTime = MaxVelocity / AccelerationRate;  // Acceleration time
-    DecelerationTime = TargetDegrees / MaxVelocity;                // Deceleration time
-    TotalTime = AccelerationTime + DecelerationTime;                          // Total movement time
+    accelerationTime = maxVelocity / accelerationRate;  // Acceleration time
+    decelerationTime = targetDegrees / maxVelocity;                // Deceleration time
+    totalTime = accelerationTime + decelerationTime;                          // Total movement time
 
     // Convert maximum velocity to RPM for motor control
-    MaxVelocityRPM = MaxVelocity / 6;
+    maxVelocityRPM = maxVelocity / 6;
 
     // Determine movement direction based on target distance sign
-    if (DistanceTiles < 0) {
-        MovementDirection = -1;  // Reverse direction for negative distance
+    if (distanceCm < 0) {
+        movementDirection = -1;  // Reverse direction for negative distance
     }
 
     // PID controllers for distance and turning
-    PID TurnPID(ProportionalGain, 0.0000005, 0.0, 0.5);  // Turn PID controller with specified proportional gain
+    PID turnPID(proportionalGain, 0.0000005, 0.0, defaultRotateErrorRange);  // Turn PID controller with specified proportional gain
 
     // Timers for movement timeout and elapsed time
     timer moveTimeout;
-    timer timer;
+    timer elapsedTime;
 
     // Main control loop for movement
-    while (CurrentPosition < fabs(TargetDegrees) && moveTimeout.value() <= Timeout) {
-        // Calculate speed profile based on current time within AccelerationTime and DecelerationTime
-        if (timer.value() < AccelerationTime) {
-            CurrentSpeed = cos(timer.value() / AccelerationTime * M_PI + M_PI) * MaxVelocityRPM / 2 + MaxVelocityRPM / 2;  // Accelerating phase
-        } else if (timer.value() > DecelerationTime) {
-            CurrentSpeed = fmax(cos((timer.value() - DecelerationTime) / AccelerationTime * M_PI) * MaxVelocityRPM / 2 + MaxVelocityRPM / 2, 300);  // Decelerating phase
-            // This adjustment handles potential distance error correction
+    while (currentPosition < fabs(targetDegrees) && moveTimeout.value() <= timeout) {
+        // Calculate speed profile based on current time within accelerationTime and decelerationTime
+        if (elapsedTime.value() < accelerationTime) {
+            currentSpeed = cos(elapsedTime.value() / accelerationTime * M_PI + M_PI) * maxVelocityRPM / 2 + maxVelocityRPM / 2;  // Accelerating phase
+        } else if (elapsedTime.value() > decelerationTime) {
+            currentSpeed = fmax(cos((elapsedTime.value() - decelerationTime) / accelerationTime * M_PI) * maxVelocityRPM / 2 + maxVelocityRPM / 2, 300);  // Decelerating phase
         } else {
-            CurrentSpeed = CurrentSpeed;  // Maintain current speed
+            currentSpeed = currentSpeed;  // Maintain current speed
         }
 
         // Calculate turning error
-        double TurnError = TargetAngle - Inertial.rotation(degrees);
-        TurnPID.PIDCalculate(TurnError);  // Calculate PID value for turning
-        double TurnSpeed = TurnPID.Value();
+        double turnError = targetAngle - Inertial.rotation(degrees);
+        turnPID.pidCalculate(turnError);  // Calculate PID value for turning
+        double turnSpeed = turnPID.value();
 
         // Adjust motor speeds for both forward movement and turning correction
-        double LeftSpeed = MovementDirection * CurrentSpeed + TurnSpeed;
-        double RightSpeed = MovementDirection * CurrentSpeed - TurnSpeed;
+        double leftSpeed = movementDirection * currentSpeed + turnSpeed;
+        double rightSpeed = movementDirection * currentSpeed - turnSpeed;
 
-        MotorSpin(LeftSpeed, RightSpeed, rpm);
+        motorSpin(leftSpeed, rightSpeed, rpm);
 
         // Wait for a short interval before the next iteration
         wait(10, msec);
 
         // Update current position based on average of motor encoder positions
-        CurrentPosition = fabs((LeftMotor.position(deg) + RightMotor.position(deg)) / 2);
+        currentPosition = fabs((LeftMotor.position(deg) + RightMotor.position(deg)) / 2);
 
         // Emergency stop if turning error is too large
-        if (fabs(TurnError) > 0.5) {
-            MotorStop(brake);  // Stop the motors with brake mode
+        if (fabs(turnError) > 0.5) {
+            motorStop(brake);  // Stop the motors with brake mode
         }
     }
 
     // Stop the motors with hold mode after reaching the target distance or timeout
-    MotorStop(brake);
+    motorStop(brake);
 }
 
-void Auto_class::MoveTurnTileWithPID(float DistanceTile, float Rotation, float MoveVelocity, float RotateVelocity, float RatioToTurn, float ErrorRange, float Timeout){
+void autoClass::moveTurnCmWithPID(float distanceCm, float rotation, float moveVelocity, float rotateVelocity, float ratioToTurn, float timeout) {
     // Initialize PID controllers for distance, rotation, and synchronization with respective error ranges
-    PID DistancePID(0.9, 0.0, 0.7, ErrorRange);  // PID for controlling distance
-    PID RotationPID(0.5, 0.0, 0.0, DefaultRotateErrorRange);        // PID for controlling rotation
-    PID SynchronizeVelocityPID(0.5, 0.0, 0.0, 10.0);  // PID for synchronizing motor velocities
+    PID distancePID(5, 0.02575, 0.3, defaultMoveErrorRange);  // PID for controlling distance
+    PID rotationPID(3, 0.003, 0.35, defaultRotateErrorRange);  // PID for controlling rotation
+    PID synchronizeVelocityPID(0.0, 0.0, 0.0, 100.0);  // PID for synchronizing motor velocities
 
     // Record the initial encoder value to measure distance traveled
-    double EncoderRevolution = Encoder.rotation(rev);
+    double encoderRevolution = Encoder.rotation(rev);
 
     // Record the initial positions of each motor
-    std::vector<double> InitialRevolution = {L1.position(rev), L2.position(rev), L3.position(rev), R1.position(rev), R2.position(rev), R3.position(rev)};
+    std::vector<double> initialRevolution = {L1.position(rev), L2.position(rev), L3.position(rev), R1.position(rev), R2.position(rev), R3.position(rev)};
 
     // Start the timeout timer to ensure the function does not run indefinitely
-    timer timeout;
+    timer timeoutTimer;
 
     // Loop until both distance and rotation PID controllers are settled or the timeout is exceeded
-    while (!(DistancePID.isSettled() && RotationPID.isSettled()) && timeout.value() < Timeout) {
-        double DistanceError = 0.0;  // Variable to store the distance error
-        double RotationError = 0.0;  // Variable to store the rotation error
+    while (!(distancePID.isSettled() && rotationPID.isSettled()) && timeoutTimer.value() < timeout) {
+        double distanceError = 0.0;  // Variable to store the distance error
+        double rotationError = 0.0;  // Variable to store the rotation error
 
-        // Calculate the target distance in centimeters (1 tile = 60.96 cm)
-        double TargetDistance = (DistanceTile * TileLength);
+        // Calculate the target distance in centimeters
+        double targetDistance = distanceCm;
 
-        double LeftVelocityRPM;
-        double RightVelocityRPM;
+        double leftVelocityRPM;
+        double rightVelocityRPM;
 
         // Check if using encoder for distance measurement
-        if (UseEncoder) {
+        if (useEncoder) {
             // Calculate the current encoder revolution relative to the initial value
-            double EncoderCurrentRevolution = Encoder.rotation(rev) - EncoderRevolution;
+            double encoderCurrentRevolution = Encoder.rotation(rev) - encoderRevolution;
             // Calculate the current distance traveled based on encoder revolution and circumference
-            double CurrentDistance = EncoderCurrentRevolution * EncoderCircum;
+            double currentDistance = encoderCurrentRevolution * encoderCircumference;
             // Calculate the distance error
-            DistanceError = TargetDistance - CurrentDistance;
+            distanceError = targetDistance - currentDistance;
             // Calculate the rotation error based on target and current rotation
-            RotationError = (Rotation - Inertial.rotation());
+            rotationError = (rotation - Inertial.rotation());
 
             // Update the distance PID controller with the current distance error and get the PID output
-            DistancePID.PIDCalculate(DistanceError);
-            double MoveVelocityRPM = fmin(MoveVelocity, fmax(-MoveVelocity, DistancePID.Value()));
+            distancePID.pidCalculate(distanceError);
+            double moveVelocityRPM = fmin(moveVelocity, fmax(-moveVelocity, distancePID.value()));
 
             // Update the rotation PID controller with the current rotation error and get the PID output
-            RotationPID.PIDCalculate(RotationError);
-            double RotationVelocityRPM = fmin(RotateVelocity, fmax(-RotateVelocity, RotationPID.Value()));
+            rotationPID.pidCalculate(rotationError);
+            double rotationVelocityRPM = fmin(rotateVelocity, fmax(-rotateVelocity, rotationPID.value()));
 
             // Determine the left and right motor velocities based on the ratio to turn
-            if (CurrentDistance / fabs(TargetDistance) > RatioToTurn) {
+            if (currentDistance / fabs(targetDistance) > ratioToTurn) {
                 // If the drivetrain revolution per rotation is greater than the ratio to turn, 
                 // adjust the left and right velocities to include rotation velocity
-                LeftVelocityRPM = MoveVelocityRPM + RotationVelocityRPM;
-                RightVelocityRPM = MoveVelocityRPM - RotationVelocityRPM;
+                leftVelocityRPM = moveVelocityRPM + rotationVelocityRPM;
+                rightVelocityRPM = moveVelocityRPM - rotationVelocityRPM;
             } else {
                 // Set both left and right velocities to the move velocity only
-                LeftVelocityRPM = MoveVelocityRPM;
-                RightVelocityRPM = MoveVelocityRPM;
+                leftVelocityRPM = moveVelocityRPM;
+                rightVelocityRPM = moveVelocityRPM;
             }
         } else {
             // Get the current positions of each motor
-            std::vector<double> RunRevolution = {L1.position(rev), L2.position(rev), L3.position(rev), R1.position(rev), R2.position(rev), R3.position(rev)};
-            double DrivertainRevolution = AverageDifference(InitialRevolution, RunRevolution);
+            std::vector<double> runRevolution = {L1.position(rev), L2.position(rev), L3.position(rev), R1.position(rev), R2.position(rev), R3.position(rev)};
+            double drivertainRevolution = averageDifference(initialRevolution, runRevolution);
             // Calculate the current distance traveled based on motor revolutions, gear ratio, and wheel circumference
-            double CurrentDrivertainRevolution = (DrivertainRevolution) * (1.0 / GearRatio) * (WheelCircum / 1.0);
+            double currentDrivertainRevolution = (drivertainRevolution) * (1.0 / gearRatio) * (wheelCircumference / 1.0);
             // Calculate the distance error
-            DistanceError = TargetDistance - CurrentDrivertainRevolution;
+            distanceError = targetDistance - currentDrivertainRevolution;
             // Calculate the rotation error based on target and current rotation
-            RotationError = (Rotation - Inertial.rotation());
+            rotationError = (rotation - Inertial.rotation());
 
             // Update the distance PID controller with the current distance error and get the PID output
-            DistancePID.PIDCalculate(DistanceError);
-            double MoveVelocityRPM = fmin(MoveVelocity, fmax(-MoveVelocity, DistancePID.Value()));
+            distancePID.pidCalculate(distanceError);
+            double moveVelocityRPM = fmin(moveVelocity, fmax(-moveVelocity, distancePID.value()));
 
             // Update the rotation PID controller with the current rotation error and get the PID output
-            RotationPID.PIDCalculate(RotationError);
-            double RotationVelocityRPM = fmin(RotateVelocity, fmax(-RotateVelocity, RotationPID.Value()));
+            rotationPID.pidCalculate(rotationError);
+            double rotationVelocityRPM = fmin(rotateVelocity, fmax(-rotateVelocity, rotationPID.value()));
 
             // Determine the left and right motor velocities based on the ratio to turn
-            if (CurrentDrivertainRevolution / fabs(TargetDistance) > RatioToTurn) {
+            if (currentDrivertainRevolution / fabs(targetDistance) > ratioToTurn) {
                 // If the drivetrain revolution per rotation is greater than the ratio to turn, 
                 // adjust the left and right velocities to include rotation velocity
-                LeftVelocityRPM = MoveVelocityRPM + RotationVelocityRPM;
-                RightVelocityRPM = MoveVelocityRPM - RotationVelocityRPM;
+                leftVelocityRPM = moveVelocityRPM + rotationVelocityRPM;
+                rightVelocityRPM = moveVelocityRPM - rotationVelocityRPM;
             } else {
                 // Set both left and right velocities to the move velocity only
-                LeftVelocityRPM = MoveVelocityRPM;
-                RightVelocityRPM = MoveVelocityRPM;
+                leftVelocityRPM = moveVelocityRPM;
+                rightVelocityRPM = moveVelocityRPM;
             }
         }
 
         // Calculate the current velocity difference between the left and right motors in RPM
-        double VelocityDifferenceRPM = LeftMotor.velocity(rpm) - RightMotor.velocity(rpm);
+        double velocityDifferenceRPM = LeftMotor.velocity(rpm) - RightMotor.velocity(rpm);
         // Convert the velocity difference from RPM to centimeters per second
-        double VelocityDifferenceCmRPS = (VelocityDifferenceRPM) * (600.0 / 60) * (1 / GearRatio) * (WheelCircum / 1.0);
+        double velocityDifferenceCmRPS = (velocityDifferenceRPM) * (600.0 / 60) * (1 / gearRatio) * (wheelCircumference / 1.0);
 
         // Calculate the expected velocity difference between the left and right motors based on target velocities
-        double CalculateVelocityDifferenceRPM = LeftVelocityRPM - RightVelocityRPM;
+        double calculateVelocityDifferenceRPM = leftVelocityRPM - rightVelocityRPM;
         // Convert the expected velocity difference from RPM to centimeters per second
-        double CalculateVelocityDifferenceCmRPS = (CalculateVelocityDifferenceRPM) * (600.0 / 60) * (1 / GearRatio) * (WheelCircum / 1.0);
+        double calculateVelocityDifferenceCmRPS = (calculateVelocityDifferenceRPM) * (600.0 / 60) * (1 / gearRatio) * (wheelCircumference / 1.0);
 
         // Calculate the error in velocity difference
-        double VelocityDifference = CalculateVelocityDifferenceCmRPS - VelocityDifferenceCmRPS;
+        double velocityDifference = calculateVelocityDifferenceCmRPS - velocityDifferenceCmRPS;
 
         // Update the synchronization PID controller with the velocity difference error and get the PID output
-        SynchronizeVelocityPID.PIDCalculate(VelocityDifference);
-        double VelocityStraighten = SynchronizeVelocityPID.Value();
+        synchronizeVelocityPID.pidCalculate(velocityDifference);
+        double velocityStraighten = synchronizeVelocityPID.value();
 
         // Adjust the left and right motor velocities with the synchronization value
-        LeftVelocityRPM += VelocityStraighten;
-        RightVelocityRPM -= VelocityStraighten;
+        leftVelocityRPM += velocityStraighten;
+        rightVelocityRPM -= velocityStraighten;
 
         // Spin the motors with the adjusted velocities
-        MotorSpin(LeftVelocityRPM, RightVelocityRPM, rpm);
+        motorSpin(leftVelocityRPM, rightVelocityRPM, rpm);
 
         // Wait for 10 milliseconds before the next iteration of the loop
         wait(10, msec);
     }
     
     // Stop the motors once the loop is exited, either because the target was reached or the timeout was exceeded
-    MotorStop(coast);
+    motorStop(brake);
 }

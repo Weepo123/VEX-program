@@ -11,6 +11,7 @@
 #include "robot-config.h"
 #include "Autonomous.h"
 #include "DriverControl.h"
+#include "UI/UIFunction.h"
 using namespace vex;
 
 // A global instance of competition
@@ -32,6 +33,7 @@ void pre_auton(void) {
   while (Inertial.isCalibrating()) {
   task::sleep(10);
   }
+
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
 }
@@ -72,9 +74,8 @@ void usercontrol(void) {
     // ........................................................................
     // ........................................................................
     while(1){
-      Control();
-      wait(20, msec); // Sleep the task for a short amount of time to
-    }                // prevent wasted resources.
+      control();
+    }
   }
 
 
@@ -82,6 +83,7 @@ void usercontrol(void) {
 
 int main() {
   // Set up callbacks for autonomous and driver control periods.
+  brainUI();
   Competition.autonomous(autonomous);
   Competition.drivercontrol(usercontrol);
 

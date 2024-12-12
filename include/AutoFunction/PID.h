@@ -5,13 +5,13 @@
 class PID {
     public:
         // Constructor with default parameter values
-        PID(double kP = 0, double kI = 0, double kD = 0, double ErrorRang = 3, double ErrorCount = 5);
+        PID(double kP = 0, double kI = 0, double kD = 0, double errorRange = 3, double errorCount = 5);
 
         // Method to calculate the PID based on the current error
-        void PIDCalculate(double Error);
+        void pidCalculate(double error);
 
         // Method to compute the PID output value
-        double Value();
+        double value();
 
         // Method to check if the error is settled within the acceptable range for a specified count
         bool isSettled();
@@ -21,11 +21,11 @@ class PID {
         double kPValue, kIValue, kDValue;
 
         // Error terms
-        double CurrentError, Integrator, DeltaError, PreviousError;
+        double currentError, integrator, deltaError, previousError;
 
         // Error handling parameters
-        double AbsErrorRang, MinErrorCount;
+        double absErrorRange, minErrorCount;
 
         // Count to determine if the error is settled
-        double SetlCount;
+        double settleCount;
 };

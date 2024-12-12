@@ -2,7 +2,7 @@
 #include "robot-config.h"
 #include "DriverFunction/DriverFunction.h"
 
-void Driver_class::IntakeSpin(){
+void driverClass::intakeSpin(){
     if(Controller.ButtonR1.pressing()){
         Intake.spin(forward, 12, volt);
    }

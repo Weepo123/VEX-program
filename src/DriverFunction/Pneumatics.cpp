@@ -1,10 +1,10 @@
 #include "vex.h"
 #include "robot-config.h"
-#include "DriverFunction/DriverFunction.h"
+#include "DriverFunction/Pneumatics.h"
 
 bool clamp = true;
-bool pullIntake = true;
-void GoalClamp(){
+bool redirect = true;
+void goalClamp(){
     if(clamp){
         Clamp.open();
         clamp = false;
@@ -14,14 +14,13 @@ void GoalClamp(){
         clamp = true;
     }
 }
-
-void PullUpIntake(){
-    if(pullIntake){
-        PullIntake.open();
-        pullIntake = false;
+void redirectRing(){
+    if(redirect){
+        Redirect.open();
+        redirect = false;
     }
-    else if(!pullIntake){
-        PullIntake.close();
-        pullIntake = true;
+    else if (!redirect){
+        Redirect.close();
+        redirect = true;
     }
 }

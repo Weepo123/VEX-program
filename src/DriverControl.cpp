@@ -4,18 +4,18 @@
 #include "DriverFunction/Pneumatics.h"
 using namespace vex;
 
-Driver_class Driver;
+driverClass driver;
 
-void Control() {
-    Driver.Elevation.reset(); // Reset elevation timer
-    Controller.ButtonL1.pressed(GoalClamp);
-    Controller.ButtonUp.pressed(PullUpIntake);
+void control() {
+    driver.elevation.reset(); // Reset elevation timer
+    Controller.ButtonL1.pressed(goalClamp);
+    Controller.ButtonY.pressed(redirectRing);
+
     // Main control loop
     while (true) {
-        Driver.IntakeSpin();           // Control the intake mechanism based on controller input
-        Driver.DrivertainSpin();            // Control the drivetrain based on controller input
-        Driver.DrivertainTemperature(); // Display motor temperatures on Brain screen and terminal
-        Driver.ElevationTime();        // Rumble the controller based on the elevation sensor value
-        wait(10, msec);                 // Wait for 10 milliseconds before the next iteration
+        driver.intakeSpin();           // Control the intake mechanism based on controller input
+        driver.drivertainSpin();            // Control the drivetrain based on controller input
+        driver.drivertainTemperature(); // Display motor temperatures on Brain screen and terminal
+        driver.elevationTime();        // Rumble the controller based on the elevation sensor value
     }
 }
